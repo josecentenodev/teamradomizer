@@ -1,0 +1,86 @@
+---
+import Layout from '../layouts/Layout.astro';
+import '../styles/global.css';
+---
+
+<Layout>
+	<main class="container mx-auto max-w-[1400px] px-4 py-8">
+		<div class="text-center">
+			<h1 class="text-4xl font-bold mb-8 text-violet-600">Team Randomizer</h1>
+			<p class="text-gray-600 mb-8">Divide tus jugadores en equipos aleatorios para partidas personalizadas de League of Legends</p>
+		</div>
+
+		<div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
+			<div class="mb-6">
+				<label for="players" class="block text-sm font-medium text-gray-700 mb-2">
+					Ingresa los nombres de los jugadores (uno por línea)
+				</label>
+				<textarea
+					id="players"
+					class="w-full h-40 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+					placeholder="Ejemplo:&#10;Jugador1&#10;Jugador2&#10;Jugador3&#10;Jugador4"
+				></textarea>
+			</div>
+
+			<button
+				id="generateTeams"
+				class="w-full bg-violet-600 text-white py-3 px-6 rounded-md hover:bg-violet-700 transition-colors font-medium"
+			>
+				Generar Equipos
+			</button>
+
+			<div id="teamsResult" class="mt-8 hidden">
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<div class="bg-violet-50 p-4 rounded-md">
+						<h3 class="text-lg font-semibold text-violet-800 mb-3">Equipo 1</h3>
+						<ul id="team1" class="space-y-2"></ul>
+					</div>
+					<div class="bg-indigo-50 p-4 rounded-md">
+						<h3 class="text-lg font-semibold text-indigo-800 mb-3">Equipo 2</h3>
+						<ul id="team2" class="space-y-2"></ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+</Layout>
+
+<script>
+	const playersTextarea = document.getElementById('players') as HTMLTextAreaElement;
+	const generateButton = document.getElementById('generateTeams');
+	const teamsResult = document.getElementById('teamsResult');
+	const team1List = document.getElementById('team1');
+	const team2List = document.getElementById('team2');
+
+	generateButton?.addEventListener('click', () => {
+		const players = playersTextarea.value
+			.split('\n')
+			.map(player => player.trim())
+			.filter(player => player.length > 0);
+
+		if (players.length < 2) {
+			alert('Ingresa al menos 2 jugadores para generar los equipos');
+			return;
+		}
+
+		// Shuffle players
+		const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
+		
+		// Split into two teams
+		const midPoint = Math.ceil(shuffledPlayers.length / 2);
+		const team1Players = shuffledPlayers.slice(0, midPoint);
+		const team2Players = shuffledPlayers.slice(midPoint);
+
+		// Display teams
+		if (team1List && team2List) {
+			team1List.innerHTML = team1Players
+				.map(player => `<li class="bg-violet-100 p-2 rounded">${player}</li>`)
+				.join('');
+			team2List.innerHTML = team2Players
+				.map(player => `<li class="bg-indigo-100 p-2 rounded">${player}</li>`)
+				.join('');
+		}
+
+		teamsResult?.classList.remove('hidden');
+	});
+</script>
