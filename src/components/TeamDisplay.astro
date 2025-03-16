@@ -11,25 +11,106 @@ const { gameMode = 'aram' } = Astro.props;
         <div class="bg-violet-50 p-4 rounded-md">
             <h3 class="text-lg font-semibold text-violet-800 mb-3">Equipo 1</h3>
             <ul id="team1" class="space-y-2"></ul>
+            <div id="team1Picks" class="mt-4 sm:grid-cols-3 md:grid-cols-5 gap-2 hidden">
+                <div class="space-y-1">
+                    <img src="" alt="" class="w-full h-42 object-cover rounded-md champion-img">
+                    <p class="text-sm text-center font-medium role-label"></p>
+                    <p class="text-xs text-center champion-name"></p>
+                </div>
+                <div class="space-y-1">
+                    <img src="" alt="" class="w-full h-42 object-cover rounded-md champion-img">
+                    <p class="text-sm text-center font-medium role-label"></p>
+                    <p class="text-xs text-center champion-name"></p>
+                </div>
+                <div class="space-y-1">
+                    <img src="" alt="" class="w-full h-42 object-cover rounded-md champion-img">
+                    <p class="text-sm text-center font-medium role-label"></p>
+                    <p class="text-xs text-center champion-name"></p>
+                </div>
+                <div class="space-y-1">
+                    <img src="" alt="" class="w-full h-42 object-cover rounded-md champion-img">
+                    <p class="text-sm text-center font-medium role-label"></p>
+                    <p class="text-xs text-center champion-name"></p>
+                </div>
+                <div class="space-y-1">
+                    <img src="" alt="" class="w-full h-42 object-cover rounded-md champion-img">
+                    <p class="text-sm text-center font-medium role-label"></p>
+                    <p class="text-xs text-center champion-name"></p>
+                </div>
+            </div>
         </div>
         <div class="bg-indigo-50 p-4 rounded-md">
             <h3 class="text-lg font-semibold text-indigo-800 mb-3">Equipo 2</h3>
             <ul id="team2" class="space-y-2"></ul>
+            <div id="team2Picks" class="mt-4 sm:grid-cols-3 md:grid-cols-5 gap-2 hidden">
+                <div class="space-y-1">
+                    <img src="" alt="" class="w-full h-42 object-cover rounded-md champion-img">
+                    <p class="text-sm text-center font-medium role-label"></p>
+                    <p class="text-xs text-center champion-name"></p>
+                </div>
+                <div class="space-y-1">
+                    <img src="" alt="" class="w-full h-42 object-cover rounded-md champion-img">
+                    <p class="text-sm text-center font-medium role-label"></p>
+                    <p class="text-xs text-center champion-name"></p>
+                </div>
+                <div class="space-y-1">
+                    <img src="" alt="" class="w-full h-42 object-cover rounded-md champion-img">
+                    <p class="text-sm text-center font-medium role-label"></p>
+                    <p class="text-xs text-center champion-name"></p>
+                </div>
+                <div class="space-y-1">
+                    <img src="" alt="" class="w-full h-42 object-cover rounded-md champion-img">
+                    <p class="text-sm text-center font-medium role-label"></p>
+                    <p class="text-xs text-center champion-name"></p>
+                </div>
+                <div class="space-y-1">
+                    <img src="" alt="" class="w-full h-42 object-cover rounded-md champion-img">
+                    <p class="text-sm text-center font-medium role-label"></p>
+                    <p class="text-xs text-center champion-name"></p>
+                </div>
+            </div>
         </div>
+    </div>
+    <div class="mt-6 text-center">
+        <button
+            id="suggestPicks"
+            class="bg-emerald-600 text-white py-2 px-4 rounded-md hover:bg-emerald-700 transition-colors font-medium hidden"
+        >
+            Sugerir Picks
+        </button>
+        <button
+            id="rerollPicks"
+            class="bg-amber-600 text-white py-2 px-4 rounded-md hover:bg-amber-700 transition-colors font-medium ml-2 hidden"
+        >
+            Reroll Picks
+        </button>
     </div>
 </div>
 
 <script>
+    import { CHAMP_SPLASH_URL, GAME_MODES, ROLES, getRandomChampion } from '../utils/constants';
+    import champions from '../data/champions.json';
+
     const generateButton = document.getElementById('generateTeams');
+    const suggestPicksButton = document.getElementById('suggestPicks');
+    const rerollPicksButton = document.getElementById('rerollPicks');
     const teamsResult = document.getElementById('teamsResult');
     const team1List = document.getElementById('team1');
     const team2List = document.getElementById('team2');
+    const team1Picks = document.getElementById('team1Picks');
+    const team2Picks = document.getElementById('team2Picks');
     let currentGameMode = 'aram';
+    let currentTeam1: string[] = [];
+    let currentTeam2: string[] = [];
 
     // Listen for game mode changes
     window.addEventListener('gameModeChanged', ((event: CustomEvent) => {
         currentGameMode = event.detail.mode;
         teamsResult?.classList.add('hidden');
+        suggestPicksButton?.classList.add('hidden');
+        rerollPicksButton?.classList.add('hidden');
+        team1Picks?.classList.add('hidden');
+        team2Picks?.classList.add('hidden');
     }) as EventListener);
 
     generateButton?.addEventListener('click', () => {
@@ -39,7 +120,7 @@ const { gameMode = 'aram' } = Astro.props;
             .map(player => player.trim())
             .filter(player => player.length > 0);
 
-        if (currentGameMode === 'summoners-rift') {
+        if (currentGameMode === GAME_MODES.SUMMONERS_RIFT) {
             if (players.length !== 10) {
                 alert('Para Grieta del Invocador necesitas exactamente 10 jugadores (5vs5)');
                 return;
@@ -57,19 +138,69 @@ const { gameMode = 'aram' } = Astro.props;
         
         // Split into two teams
         const midPoint = Math.ceil(shuffledPlayers.length / 2);
-        const team1Players = shuffledPlayers.slice(0, midPoint);
-        const team2Players = shuffledPlayers.slice(midPoint);
+        currentTeam1 = shuffledPlayers.slice(0, midPoint);
+        currentTeam2 = shuffledPlayers.slice(midPoint);
 
         // Display teams
         if (team1List && team2List) {
-            team1List.innerHTML = team1Players
+            team1List.innerHTML = currentTeam1
                 .map(player => `<li class="bg-violet-100 p-2 rounded">${player}</li>`)
                 .join('');
-            team2List.innerHTML = team2Players
+            team2List.innerHTML = currentTeam2
                 .map(player => `<li class="bg-indigo-100 p-2 rounded">${player}</li>`)
                 .join('');
         }
 
         teamsResult?.classList.remove('hidden');
+        suggestPicksButton?.classList.remove('hidden');
+        team1Picks?.classList.add('hidden');
+        team2Picks?.classList.add('hidden');
     });
+
+    function suggestChampions() {
+        const usedChampions: string[] = [];
+
+        function updateTeamPicks(teamElement: HTMLElement | null, teamPlayers: string[]) {
+            if (!teamElement) return;
+
+            const champImgs = teamElement.querySelectorAll('.champion-img');
+            const roleLabels = teamElement.querySelectorAll('.role-label');
+            const champNames = teamElement.querySelectorAll('.champion-name');
+            const pickDivs = teamElement.querySelectorAll('.space-y-1');
+
+            // Ocultar todos los contenedores de picks primero
+            pickDivs.forEach(div => (div as HTMLElement).style.display = 'none');
+
+            // Mostrar solo los necesarios y actualizar
+            for (let i = 0; i < teamPlayers.length; i++) {
+                const champion = getRandomChampion(champions, usedChampions);
+                usedChampions.push(champion.id);
+
+                (pickDivs[i] as HTMLElement).style.display = 'block';
+                const imgElement = champImgs[i] as HTMLImageElement;
+                imgElement.src = `${CHAMP_SPLASH_URL}${champion.id}_0.jpg`;
+                imgElement.alt = champion.name;
+
+                if (currentGameMode === GAME_MODES.SUMMONERS_RIFT) {
+                    roleLabels[i].textContent = Object.values(ROLES)[i];
+                } else {
+                    roleLabels[i].textContent = 'ARAM';
+                }
+
+                champNames[i].textContent = champion.name;
+            }
+        }
+
+        updateTeamPicks(team1Picks, currentTeam1);
+        updateTeamPicks(team2Picks, currentTeam2);
+
+        team1Picks?.classList.remove('hidden');
+        team1Picks?.classList.add('grid', 'grid-cols-2');
+        team2Picks?.classList.remove('hidden');
+        team2Picks?.classList.add('grid', 'grid-cols-2');
+        rerollPicksButton?.classList.remove('hidden');
+    }
+
+    suggestPicksButton?.addEventListener('click', suggestChampions);
+    rerollPicksButton?.addEventListener('click', suggestChampions);
 </script> 
