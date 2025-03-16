@@ -1,0 +1,78 @@
+---
+interface Props {
+    gameMode: string;
+}
+
+const { gameMode = 'aram' } = Astro.props;
+---
+
+<div class="bg-white rounded-lg shadow-lg p-6 max-w-lg mx-auto">
+    <div class="mb-6">
+        <label for="players" class="block text-sm font-medium text-gray-700 mb-2">
+            Ingresa los nombres de los jugadores (uno por línea)
+        </label>
+        <textarea
+            id="players"
+            class="w-full h-40 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+            placeholder={`Ejemplo:${'\n'}Jugador1${'\n'}Jugador2${'\n'}Jugador3${'\n'}Jugador4`}
+        ></textarea>
+        <div class="mt-2 space-y-1">
+            <p class="text-sm font-medium text-gray-700" id="playerCount">Jugadores ingresados: 0</p>
+            <p class="text-sm text-gray-500" id="playerRequirement">
+                {gameMode === 'aram' 
+                    ? 'Mínimo 2 jugadores para ARAM'
+                    : 'Se requieren exactamente 10 jugadores para Grieta del Invocador (5vs5)'}
+            </p>
+        </div>
+    </div>
+
+    <button
+        id="generateTeams"
+        class="w-full bg-violet-600 text-white py-3 px-6 rounded-md hover:bg-violet-700 transition-colors font-medium"
+    >
+        Generar Equipos
+    </button>
+</div>
+
+<script>
+    let currentGameMode = 'aram';
+    const textarea = document.getElementById('players') as HTMLTextAreaElement;
+    const playerCountElement = document.getElementById('playerCount');
+    const playerRequirementElement = document.getElementById('playerRequirement');
+
+    function updatePlayerCount() {
+        const players = textarea.value
+            .split('\n')
+            .map(player => player.trim())
+            .filter(player => player.length > 0);
+        
+        if (playerCountElement) {
+            playerCountElement.textContent = `Jugadores ingresados: ${players.length}`;
+        }
+    }
+
+    // Listen for game mode changes
+    window.addEventListener('gameModeChanged', ((event: CustomEvent) => {
+        currentGameMode = event.detail.mode;
+        if (playerRequirementElement) {
+            playerRequirementElement.textContent = currentGameMode === 'aram'
+                ? 'Mínimo 2 jugadores para ARAM'
+                : 'Se requieren exactamente 10 jugadores para Grieta del Invocador (5vs5)';
+        }
+        updatePlaceholder();
+    }) as EventListener);
+
+    textarea.addEventListener('input', updatePlayerCount);
+
+    function updatePlaceholder() {
+        const recommendedPlayers = currentGameMode === 'aram' ? 6 : 10;
+        const placeholder = Array.from(
+            { length: Math.min(4, recommendedPlayers) }, 
+            (_, i) => `Jugador${i + 1}`
+        ).join('\n');
+        textarea.placeholder = placeholder;
+    }
+
+    // Initial count
+    updatePlayerCount();
+</script> 

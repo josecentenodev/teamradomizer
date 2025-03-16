@@ -1,0 +1,75 @@
+---
+interface Props {
+    gameMode: string;
+}
+
+const { gameMode = 'aram' } = Astro.props;
+---
+
+<div id="teamsResult" class="mt-8 hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-violet-50 p-4 rounded-md">
+            <h3 class="text-lg font-semibold text-violet-800 mb-3">Equipo 1</h3>
+            <ul id="team1" class="space-y-2"></ul>
+        </div>
+        <div class="bg-indigo-50 p-4 rounded-md">
+            <h3 class="text-lg font-semibold text-indigo-800 mb-3">Equipo 2</h3>
+            <ul id="team2" class="space-y-2"></ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    const generateButton = document.getElementById('generateTeams');
+    const teamsResult = document.getElementById('teamsResult');
+    const team1List = document.getElementById('team1');
+    const team2List = document.getElementById('team2');
+    let currentGameMode = 'aram';
+
+    // Listen for game mode changes
+    window.addEventListener('gameModeChanged', ((event: CustomEvent) => {
+        currentGameMode = event.detail.mode;
+        teamsResult?.classList.add('hidden');
+    }) as EventListener);
+
+    generateButton?.addEventListener('click', () => {
+        const playersTextarea = document.getElementById('players') as HTMLTextAreaElement;
+        const players = playersTextarea.value
+            .split('\n')
+            .map(player => player.trim())
+            .filter(player => player.length > 0);
+
+        if (currentGameMode === 'summoners-rift') {
+            if (players.length !== 10) {
+                alert('Para Grieta del Invocador necesitas exactamente 10 jugadores (5vs5)');
+                return;
+            }
+        } else {
+            // ARAM validation
+            if (players.length < 2) {
+                alert('Ingresa al menos 2 jugadores para ARAM');
+                return;
+            }
+        }
+
+        // Shuffle players
+        const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
+        
+        // Split into two teams
+        const midPoint = Math.ceil(shuffledPlayers.length / 2);
+        const team1Players = shuffledPlayers.slice(0, midPoint);
+        const team2Players = shuffledPlayers.slice(midPoint);
+
+        // Display teams
+        if (team1List && team2List) {
+            team1List.innerHTML = team1Players
+                .map(player => `<li class="bg-violet-100 p-2 rounded">${player}</li>`)
+                .join('');
+            team2List.innerHTML = team2Players
+                .map(player => `<li class="bg-indigo-100 p-2 rounded">${player}</li>`)
+                .join('');
+        }
+
+        teamsResult?.classList.remove('hidden');
+    });
+</script> 

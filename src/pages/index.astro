@@ -1,5 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import GameModeSelector from '../components/GameModeSelector.astro';
+import PlayerInput from '../components/PlayerInput.astro';
+import TeamDisplay from '../components/TeamDisplay.astro';
 import '../styles/global.css';
 ---
 
@@ -10,38 +13,9 @@ import '../styles/global.css';
 			<p class="text-gray-600 mb-8">Divide tus jugadores en equipos aleatorios para partidas personalizadas de League of Legends</p>
 		</div>
 
-		<div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
-			<div class="mb-6">
-				<label for="players" class="block text-sm font-medium text-gray-700 mb-2">
-					Ingresa los nombres de los jugadores (uno por línea)
-				</label>
-				<textarea
-					id="players"
-					class="w-full h-40 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
-					placeholder="Ejemplo:&#10;Jugador1&#10;Jugador2&#10;Jugador3&#10;Jugador4"
-				></textarea>
-			</div>
-
-			<button
-				id="generateTeams"
-				class="w-full bg-violet-600 text-white py-3 px-6 rounded-md hover:bg-violet-700 transition-colors font-medium"
-			>
-				Generar Equipos
-			</button>
-
-			<div id="teamsResult" class="mt-8 hidden">
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-					<div class="bg-violet-50 p-4 rounded-md">
-						<h3 class="text-lg font-semibold text-violet-800 mb-3">Equipo 1</h3>
-						<ul id="team1" class="space-y-2"></ul>
-					</div>
-					<div class="bg-indigo-50 p-4 rounded-md">
-						<h3 class="text-lg font-semibold text-indigo-800 mb-3">Equipo 2</h3>
-						<ul id="team2" class="space-y-2"></ul>
-					</div>
-				</div>
-			</div>
-		</div>
+		<GameModeSelector selectedMode="aram" />
+		<PlayerInput gameMode="aram" />
+		<TeamDisplay gameMode="aram" />
 	</main>
 </Layout>
 
