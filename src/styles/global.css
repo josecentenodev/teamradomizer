@@ -2,8 +2,33 @@
 
 body {
     @apply bg-gray-50 text-gray-900 min-h-screen;
+    background-image: 
+        radial-gradient(circle at 25px 25px, rgba(147, 51, 234, 0.15) 2px, transparent 0),
+        radial-gradient(circle at 75px 75px, rgba(139, 92, 246, 0.15) 2px, transparent 0),
+        radial-gradient(circle at 50px 50px, rgba(167, 139, 250, 0.15) 2px, transparent 0);
+    background-size: 100px 100px;
+    background-position: 
+        0 0,
+        25px 25px,
+        50px 50px;
+    animation: subtleFloat 30s linear infinite;
 }
 
 ::selection {
     @apply bg-violet-500 text-white;
+}
+
+@keyframes subtleFloat {
+    from {
+        background-position: 
+            0 0,
+            25px 25px,
+            50px 50px;
+    }
+    to {
+        background-position: 
+            100px 100px,
+            125px 125px,
+            150px 150px;
+    }
 }
